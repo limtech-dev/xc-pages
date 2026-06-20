@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lim-Tec 资料下载</title>
+  <style>
+    * { margin:0; padding:0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      background: #f5f7fa;
+      color: #1a202c;
+      min-height: 100vh;
+      padding: 36px 20px 60px;
+    }
+
+    h1 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: #2d3748;
+      max-width: 680px;
+      margin: 0 auto 20px;
+    }
+
+    .list {
+      max-width: 680px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 12px 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      transition: box-shadow 0.15s;
+    }
+
+    .row:hover { box-shadow: 0 3px 12px rgba(0,0,0,0.1); }
+
+    .icon {
+      width: 40px;
+      height: 40px;
+      flex-shrink: 0;
+      border-radius: 6px;
+      overflow: hidden;
+      background: #fef3e2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .icon svg { width: 26px; height: 26px; }
+
+    .name {
+      flex: 1;
+      font-size: 0.93rem;
+      font-weight: 500;
+      color: #2d3748;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 13px;
+      border-radius: 7px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn-dl {
+      background: #4285f4;
+      color: #fff;
+    }
+
+    .btn-dl:hover { background: #3367d6; }
+
+    .btn-view {
+      background: #e8f0fe;
+      color: #4285f4;
+    }
+
+    .btn-view:hover { background: #d2e3fc; }
+
+    @media (max-width: 480px) {
+      .name { font-size: 0.85rem; }
+      .btn { padding: 5px 9px; font-size: 0.78rem; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Lim-Tec 资料下载</h1>
+  <div class="list" id="list"></div>
+
+  <script>
+    // PDF 文件列表（托管在 GitHub Releases，国内可访问）
+    const files = [
+      {
+        name: 'Lim-Tec Slider actuator 2026.pdf',
+        view: 'https://github.com/limtech-dev/limtec-cn/releases/download/v1.0/Lim-Tec-Slider-actuator-2026.pdf',
+        dl:   'https://github.com/limtech-dev/limtec-cn/releases/download/v1.0/Lim-Tec-Slider-actuator-2026.pdf'
+      },
+      {
+        name: '力姆泰克伺服电缸中文2026.pdf',
+        view: 'https://github.com/limtech-dev/limtec-cn/releases/download/v1.0/Lim-Tec-Servo-Cylinder-CN-2026.pdf',
+        dl:   'https://github.com/limtech-dev/limtec-cn/releases/download/v1.0/Lim-Tec-Servo-Cylinder-CN-2026.pdf'
+      },
+      {
+        name: '力姆泰克螺旋升降机电动推杆综合样本2026.pdf',
+        view: 'https://github.com/limtech-dev/limtec-cn/releases/download/v1.0/Lim-Tec-Jack-Actuator-CN-2026.pdf',
+        dl:   'https://github.com/limtech-dev/limtec-cn/releases/download/v1.0/Lim-Tec-Jack-Actuator-CN-2026.pdf'
+      },
+    ];
+
+    function pdfIconSVG() {
+      return `<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+        <rect x="8" y="2" width="32" height="44" rx="3" fill="#fff" stroke="#e2a700" stroke-width="2"/>
+        <rect x="8" y="2" width="32" height="14" rx="3" fill="#e2a700"/>
+        <text x="24" y="12" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">PDF</text>
+        <line x1="14" y1="22" x2="34" y2="22" stroke="#e2a700" stroke-width="1.5" opacity="0.5"/>
+        <line x1="14" y1="27" x2="32" y2="27" stroke="#e2a700" stroke-width="1.5" opacity="0.4"/>
+        <line x1="14" y1="32" x2="30" y2="32" stroke="#e2a700" stroke-width="1.5" opacity="0.3"/>
+        <line x1="14" y1="37" x2="26" y2="37" stroke="#e2a700" stroke-width="1.5" opacity="0.2"/>
+      </svg>`;
+    }
+
+    const container = document.getElementById('list');
+
+    files.forEach(f => {
+      const row = document.createElement('div');
+      row.className = 'row';
+
+      // 图标
+      const iconDiv = document.createElement('div');
+      iconDiv.className = 'icon';
+      iconDiv.innerHTML = pdfIconSVG();
+
+      // 名称
+      const nameEl = document.createElement('div');
+      nameEl.className = 'name';
+      nameEl.title = f.name;
+      nameEl.textContent = f.name;
+
+      // 操作按钮
+      const actions = document.createElement('div');
+      actions.className = 'actions';
+
+      const viewBtn = document.createElement('a');
+      viewBtn.className = 'btn btn-view';
+      viewBtn.href = f.view;
+      viewBtn.target = '_blank';
+      viewBtn.rel = 'noopener noreferrer';
+      viewBtn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/></svg>预览`;
+
+      const dlBtn = document.createElement('a');
+      dlBtn.className = 'btn btn-dl';
+      dlBtn.href = f.dl;
+      dlBtn.download = '';
+      dlBtn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 5v10M7 15l5 5 5-5M4 20h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>下载`;
+
+      actions.appendChild(viewBtn);
+      actions.appendChild(dlBtn);
+
+      row.appendChild(iconDiv);
+      row.appendChild(nameEl);
+      row.appendChild(actions);
+      container.appendChild(row);
+    });
+  </script>
+</body>
+</html>
