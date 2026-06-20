@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>文件下载</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f5f7fa;
+      color: #1a202c;
+      min-height: 100vh;
+      padding: 36px 20px 60px;
+    }
+
+    h1 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: #2d3748;
+      max-width: 680px;
+      margin: 0 auto 20px;
+    }
+
+    .list {
+      max-width: 680px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 12px 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      transition: box-shadow 0.15s;
+    }
+
+    .row:hover { box-shadow: 0 3px 12px rgba(0,0,0,0.1); }
+
+    .icon {
+      width: 40px;
+      height: 40px;
+      flex-shrink: 0;
+      border-radius: 6px;
+      overflow: hidden;
+      background: #edf2ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .icon svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .name {
+      flex: 1;
+      font-size: 0.93rem;
+      font-weight: 500;
+      color: #2d3748;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 13px;
+      border-radius: 7px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn-dl {
+      background: #4285f4;
+      color: #fff;
+    }
+
+    .btn-dl:hover { background: #3367d6; }
+
+    .btn-view {
+      background: #e8f0fe;
+      color: #4285f4;
+    }
+
+    .btn-view:hover { background: #d2e3fc; }
+
+    @media (max-width: 480px) {
+      .name { font-size: 0.85rem; }
+      .btn { padding: 5px 9px; font-size: 0.78rem; }
+    }
+  </style>
+</head>
+<body>
+  <h1>文件下载</h1>
+  <div class="list" id="list"></div>
+
+  <script>
+    const files = [
+	  { name: '2024 Lim-Tec Linear Actuator & Screw Jack Catalog.pdf', url: 'https://drive.google.com/file/d/1eG-5yInLT2MKWJ1gtGynI0QPBMEaMQpF/view?usp=drive_link' },
+   
+	   { name: 'Lim-Tec Servo Linear Actuator 2026.pdf',               url: 'https://drive.google.com/file/d/1QWyEnbfwQjQrytmZ4iOjmwm0CpwnmQ8p/view?usp=drive_link' },
+  
+      { name: '2024 Lim-Tec Electric Slide Catalog.pdf',               url: 'https://drive.google.com/file/d/12T_EF8KSCgckrNcnKxFylQQq6ITFX8ZD/view?usp=drive_link' }
+      ];
+
+    function extractId(url) {
+      const m = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+      return m ? m[1] : null;
+    }
+
+    function driveIconSVG() {
+      return `<svg viewBox="0 0 87.3 78" xmlns="http://www.w3.org/2000/svg">
+        <path d="M6.6 66.85L1.56 75.4A4.18 4.18 0 0 0 5.23 81.6H29.79A4.18 4.18 0 0 0 33.46 75.4L28.4 66.85Z" fill="#0066da"/>
+        <path d="M53.73 55.79L40.56 33.04l-13.13 22.75Z" fill="#00ac47"/>
+        <path d="M40.56 33.04L27.43 55.79H53.69Z" fill="#00832d"/>
+        <path d="M76.6 66.85L81.64 75.4A4.18 4.18 0 0 1 77.97 81.6H53.41A4.18 4.18 0 0 1 49.74 75.4L54.8 66.85Z" fill="#ea4335"/>
+        <path d="M40.56 33.04L53.69 55.79H27.43Z" fill="#00ac47"/>
+        <path d="M28.4 66.85H54.8L40.56 33.04Z" fill="#0066da"/>
+        <path d="M6.6 66.85H28.4L40.56 33.04 28.4 11.07 6.6 66.85Z" fill="#4285f4"/>
+        <path d="M76.6 66.85H54.8L40.56 33.04 52.72 11.07 76.6 66.85Z" fill="#ffba00"/>
+        <path d="M28.4 11.07H52.72L40.56 33.04Z" fill="#00832d"/>
+      </svg>`;
+    }
+
+    const container = document.getElementById('list');
+
+    files.forEach(f => {
+      const id = extractId(f.url);
+      const downloadUrl = id ? `https://drive.google.com/uc?export=download&id=${id}` : f.url;
+      const thumbUrl = id ? `https://drive.google.com/thumbnail?id=${id}&sz=w80` : '';
+
+      const row = document.createElement('div');
+      row.className = 'row';
+
+      // 图标
+      const iconDiv = document.createElement('div');
+      iconDiv.className = 'icon';
+      if (thumbUrl) {
+        const img = document.createElement('img');
+        img.src = thumbUrl;
+        img.alt = f.name;
+        img.onerror = () => { iconDiv.innerHTML = driveIconSVG(); };
+        iconDiv.appendChild(img);
+      } else {
+        iconDiv.innerHTML = driveIconSVG();
+      }
+
+      // 名称
+      const nameEl = document.createElement('div');
+      nameEl.className = 'name';
+      nameEl.title = f.name;
+      nameEl.textContent = f.name;
+
+      // 操作
+      const actions = document.createElement('div');
+      actions.className = 'actions';
+
+      const dlBtn = document.createElement('a');
+      dlBtn.className = 'btn btn-dl';
+      dlBtn.href = downloadUrl;
+      dlBtn.target = '_blank';
+      dlBtn.rel = 'noopener noreferrer';
+      dlBtn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 5v10M7 15l5 5 5-5M4 20h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>下载`;
+
+      const viewBtn = document.createElement('a');
+      viewBtn.className = 'btn btn-view';
+      viewBtn.href = f.url;
+      viewBtn.target = '_blank';
+      viewBtn.rel = 'noopener noreferrer';
+      viewBtn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/></svg>预览`;
+
+      actions.appendChild(dlBtn);
+      actions.appendChild(viewBtn);
+
+      row.appendChild(iconDiv);
+      row.appendChild(nameEl);
+      row.appendChild(actions);
+      container.appendChild(row);
+    });
+  </script>
+</body>
+</html>
